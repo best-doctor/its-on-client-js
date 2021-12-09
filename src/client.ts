@@ -42,7 +42,6 @@ export class ItsOnClient {
   }
 
   isActive(flag: string): boolean {
-    console.log('isActive', flag, this.getFlagValue(flag), this.serverFlags, this.debugFlags)
     return this.getFlagValue(flag)
   }
 
