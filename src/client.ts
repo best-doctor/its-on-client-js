@@ -62,15 +62,19 @@ export class ItsOnClient {
   }
 
   async fetchFlags(): Promise<Flags> {
-    const { result: rawFlags } = await fetch(this.config.url).then<{ count: number; result: string[] }>((response) =>
-      response.json()
-    )
-    const preparedFlags: Flags = Object.fromEntries(rawFlags.map((flag) => [flag.toLowerCase(), true]))
+    try {
+      const { result: rawFlags } = await fetch(this.config.url).then<{ count: number; result: string[] }>((response) =>
+        response.json()
+      )
+      const preparedFlags: Flags = Object.fromEntries(rawFlags.map((flag) => [flag.toLowerCase(), true]))
 
-    this.areFlagsFetched = true
-    this.setServerFlags(preparedFlags)
+      this.areFlagsFetched = true
+      this.setServerFlags(preparedFlags)
 
-    return preparedFlags
+      return preparedFlags
+    } catch {
+      return Promise.resolve({})
+    }
   }
 
   refetch = async () => {
