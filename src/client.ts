@@ -1,74 +1,75 @@
-import { Flags } from './types'
+import { Flags, FlagsSubscriber, ItsOnClientConfig, ServerResponse } from './types'
 
-const areFlagsEqual = (flags1: Flags, obj2: Flags) =>
-  Object.keys(flags1).length === Object.keys(obj2).length &&
-  Object.keys(flags1).every((key) => flags1[key] === obj2[key])
+const areFlagsEqual = (flags1: Flags, flags2: Flags): boolean =>
+  Object.keys(flags1).length === Object.keys(flags2).length &&
+  Object.keys(flags1).every((key) => flags1[key] === flags2[key])
 
-const defaultConfig: { url: string; refetchInterfal?: number } = {
-  url: '',
-  refetchInterfal: 60 * 1000,
-}
+const DEFAULT_REFETCH_TIME_INTERVAL = 60 * 1000
 
-export class ItsOnClient {
-  debugFlags: Flags
-  serverFlags: Flags
+export class ItsOnClient<T extends string = string> {
+  debugFlags: Flags<T>
 
-  config: { url: string; refetchInterfal?: number } = { url: '' }
+  serverFlags: Flags<T>
 
-  areFlagsFetched: boolean = false
+  url: ItsOnClientConfig['url']
 
-  refetchSubscribers: Array<(flags: Flags) => unknown> = []
+  refetchTimeInterval: ItsOnClientConfig['refetchTimeInterval']
+
+  areFlagsInited = false
+
+  refetchSubscribers: FlagsSubscriber[] = []
 
   refetchInterval: number | undefined = undefined
 
   // Вынос флагов defaultFlags и prefetchedFlags в параметры обусловлен
   // переносом ответственности за сборку с библиотеки на конкретный проект
-  constructor(config: { url: string; refetchInterfal?: number; defaultFlags?: Flags; prefetchedFlags?: Flags }) {
-    const { defaultFlags = {}, prefetchedFlags = {}, ...restConfig } = config
-    this.config = { ...defaultConfig, ...restConfig }
+  constructor(config: ItsOnClientConfig) {
+    const { defaultFlags = {}, prefetchedFlags = {}, refetchTimeInterval, url } = config
+
+    this.url = url
+    this.refetchTimeInterval = refetchTimeInterval || DEFAULT_REFETCH_TIME_INTERVAL
+
     this.debugFlags = defaultFlags
     this.serverFlags = prefetchedFlags
   }
 
-  getFlagValue(flag: string): boolean {
-    const formattedFlag = flag.toLowerCase()
-    const localFlag = this.debugFlags[formattedFlag]
+  getFlagValue(flag: T): boolean {
+    const formattedFlag = flag.toLowerCase() as T
+    const debugFlag = this.debugFlags[formattedFlag]
 
-    if (typeof localFlag !== 'undefined') {
-      return localFlag
+    if (typeof debugFlag !== 'undefined') {
+      return debugFlag
     }
 
     return Boolean(this.serverFlags[formattedFlag])
   }
 
-  isActive(flag: string): boolean {
+  isActive(flag: T): boolean {
     return this.getFlagValue(flag)
   }
 
-  isNotActive(flag: string): boolean {
+  isNotActive(flag: T): boolean {
     return !this.getFlagValue(flag)
   }
 
-  setDebugFlag(flag: string, value: boolean): void {
-    this.debugFlags[flag] = value
+  setDebugFlag(flag: T, value: boolean): void {
+    this.debugFlags[flag.toLowerCase() as T] = value
   }
 
   setServerFlags(flags: Flags): void {
     this.serverFlags = flags
   }
 
-  dropDebugFlags() {
+  dropDebugFlags(): void {
     this.debugFlags = {}
   }
 
   async fetchFlags(): Promise<Flags> {
     try {
-      const { result: rawFlags } = await fetch(this.config.url).then<{ count: number; result: string[] }>((response) =>
-        response.json()
-      )
+      const { result: rawFlags } = await fetch(this.url).then<ServerResponse>((response) => response.json())
       const preparedFlags: Flags = Object.fromEntries(rawFlags.map((flag) => [flag.toLowerCase(), true]))
 
-      this.areFlagsFetched = true
+      this.areFlagsInited = true
       this.setServerFlags(preparedFlags)
 
       return preparedFlags
@@ -77,16 +78,15 @@ export class ItsOnClient {
     }
   }
 
-  refetch = async () => {
-    // Не запрашиваем флаги до первой инициализации.
-    if (!this.areFlagsFetched) {
+  refetch: Function = async () => {
+    // Не перезапрашиваем флаги до первой инициализации.
+    if (!this.areFlagsInited) {
       return
     }
 
-    const oldFlags = { ...this.serverFlags }
     const newFlags = await this.fetchFlags()
 
-    const areFlagsChanged = !areFlagsEqual(oldFlags, newFlags)
+    const areFlagsChanged = !areFlagsEqual(this.serverFlags, newFlags)
 
     if (!areFlagsChanged) {
       return
@@ -99,24 +99,24 @@ export class ItsOnClient {
     })
   }
 
-  enableRefetch() {
+  enableRefetch(): void {
     if (this.refetchInterval) {
       return
     }
 
-    this.refetchInterval = window.setInterval(this.refetch, this.config.refetchInterfal)
+    this.refetchInterval = window.setInterval(this.refetch, this.refetchTimeInterval)
   }
 
-  disableRefetch() {
+  disableRefetch(): void {
     clearInterval(this.refetchInterval)
     this.refetchInterval = undefined
   }
 
-  subscribeToRefetch(callback: (flags: Flags) => unknown) {
+  subscribeToRefetch(callback: FlagsSubscriber): void {
     this.refetchSubscribers.push(callback)
   }
 
-  unsubscribeFromRefetch(callback: (flags: Flags) => unknown) {
+  unsubscribeFromRefetch(callback: FlagsSubscriber): void {
     this.refetchSubscribers = this.refetchSubscribers.filter((cb) => cb === callback)
   }
 }
