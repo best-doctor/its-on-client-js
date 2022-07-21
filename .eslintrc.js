@@ -1,15 +1,15 @@
 const baseTypescript = {
   plugins: ['@typescript-eslint', 'eslint-plugin-tsdoc'],
   extends: [
-    'airbnb-typescript',
-    'airbnb/hooks',
+    'airbnb-typescript/base',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'prettier',
   ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: './tsconfig.spec.json',
+    project: './tsconfig.json',
   },
   rules: {
     'no-prototype-builtins': 'off',
@@ -46,18 +46,13 @@ const baseTypescript = {
       { functions: false, classes: true, variables: true, typedefs: true },
     ],
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'react/prop-types': 'off',
     'class-methods-use-this': 'off',
-    // We need this to write generic code in components mounting
-    'react/jsx-props-no-spreading': 'off',
     // Non-null assertion operator makes strict typechecking useless
     '@typescript-eslint/no-non-null-assertion': 'error',
     // TypeScript handles it better
     'consistent-return': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
     'tsdoc/syntax': 'warn',
-    'react/no-unused-prop-types': 'off',
-    'react/require-default-props': 'off',
     '@typescript-eslint/comma-dangle': 'off',
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/no-floating-promises': 'off',
@@ -68,7 +63,6 @@ const baseTypescript = {
     '@typescript-eslint/unbound-method': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    'react/jsx-no-bind': ['off', { allowFunctions: true }],
   },
 }
 
@@ -101,10 +95,6 @@ module.exports = {
     {
       files: ['src/features/**/*.ts*'],
       ...baseTypescript,
-      rules: {
-        ...baseTypescript.rules,
-        'react-hooks/rules-of-hooks': 'off',
-      },
     },
     {
       files: ['src/**/*.stories.ts*'],
