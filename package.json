@@ -1,11 +1,19 @@
 {
   "name": "@bestdoctor/its-on-client",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Its On Client",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Bestdoctor Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/best-doctor/its-on-client-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/best-doctor/its-on-client-js/issues"
+  },
+  "homepage": "https://github.com/best-doctor/its-on-client-js#readme",
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
@@ -13,8 +21,8 @@
     "@types/axios": "^0.14.0",
     "@types/node": "^16.11.7",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.15.2",
+    "@typescript-eslint/eslint-plugin": "^5.30.7",
+    "@typescript-eslint/parser": "^5.30.7",
     "babel": "^6.23.0",
     "babel-loader": "^8.2.3",
     "copy-webpack-plugin": "^9.1.0",
@@ -22,6 +30,7 @@
     "eslint-config-airbnb-typescript": "^12.3.1",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-tsdoc": "^0.2.16",
     "prettier": "^2.4.1",
     "tsconfig-paths-webpack-plugin": "^3.5.2",
     "typescript": "^4.4.4",
@@ -38,8 +47,5 @@
     "*.{js,jsx,ts,tsx}": [
       "prettier --write"
     ]
-  },
-  "dependencies": {
-    "axios": "^0.24.0"
   }
 }
