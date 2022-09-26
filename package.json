@@ -1,6 +1,6 @@
 {
   "name": "@bestdoctor/its-on-client",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Its On Client",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

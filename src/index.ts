@@ -1,2 +1,3 @@
-export * from './client'
+export { ItsOnClient } from './client'
 export * from './types'
+export { ItsOnBrowserClient } from './browserClient'

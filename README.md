@@ -26,8 +26,8 @@ export const itsOnClient = new ItsOnClient({
   url: String(process.env.ITS_ON_URL),
   prefetchedFlags,
   refetchInterfal: 60 * 1000,
-  defaultFlags: {
-    'some-default-flag': true
+  debugFlags: {
+    'some-debug-flag': true
   }
 })
 

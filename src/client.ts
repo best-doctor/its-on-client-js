@@ -21,15 +21,15 @@ export class ItsOnClient<T extends string = string> {
 
   refetchInterval: number | undefined = undefined
 
-  // Вынос флагов defaultFlags и prefetchedFlags в параметры обусловлен
+  // Вынос флагов debugFlags и prefetchedFlags в параметры обусловлен
   // переносом ответственности за сборку с библиотеки на конкретный проект
   constructor(config: ItsOnClientConfig) {
-    const { defaultFlags = {}, prefetchedFlags = {}, refetchTimeInterval, url } = config
+    const { debugFlags = {}, prefetchedFlags = {}, refetchTimeInterval, url } = config
 
     this.url = url
     this.refetchTimeInterval = refetchTimeInterval || DEFAULT_REFETCH_TIME_INTERVAL
 
-    this.debugFlags = defaultFlags
+    this.debugFlags = debugFlags
     this.serverFlags = prefetchedFlags
   }
 
@@ -78,7 +78,7 @@ export class ItsOnClient<T extends string = string> {
     }
   }
 
-  refetch: Function = async () => {
+  refetch = async (): Promise<void> => {
     // Не перезапрашиваем флаги до первой инициализации.
     if (!this.areFlagsInited) {
       return
@@ -104,7 +104,7 @@ export class ItsOnClient<T extends string = string> {
       return
     }
 
-    this.refetchInterval = window.setInterval(this.refetch, this.refetchTimeInterval)
+    this.refetchInterval = window.setInterval(() => { this.refetch(); }, this.refetchTimeInterval)
   }
 
   disableRefetch(): void {

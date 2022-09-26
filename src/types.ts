@@ -5,7 +5,7 @@ export type Flags<T extends string = string> = {
 export interface ItsOnClientConfig<T extends string = string> {
   url: string
   refetchTimeInterval?: number
-  defaultFlags?: Flags<T>
+  debugFlags?: Flags<T>
   prefetchedFlags?: Flags<T>
 }
 
