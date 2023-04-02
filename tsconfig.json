@@ -1,39 +1,35 @@
 {
-    "include": [
-      "src"
-    ],
-    "compilerOptions": {
-      "baseUrl": "src",
-      "lib": [
-        "DOM",
-        "DOM.Iterable",
-        "ES2019"
-      ],
-      "module": "ES6",
-      "target": "ES5",
-      "outDir": "dist",
-      "allowJs": false,
-      "allowSyntheticDefaultImports": true,
-      "allowUnreachableCode": false,
-      "allowUnusedLabels": false,
-      "declaration": true,
-      "downlevelIteration": true,
-      "experimentalDecorators": true,
-      "forceConsistentCasingInFileNames": true,
-      "importHelpers": true,
-      "importsNotUsedAsValues": "preserve",
-      "strict": true,
-      "moduleResolution": "Node",
-      "noFallthroughCasesInSwitch": true,
-      "noImplicitReturns": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "removeComments": true,
-      "sourceMap": true,
-      "skipLibCheck": true,
-      "esModuleInterop": true,
-      "incremental": true,
-      "emitDeclarationOnly": true,
-      "isolatedModules": true
-    }
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "setupTests.ts",
+    "jest.config.ts",
+    "**/*.test.ts"
+  ],
+  "compilerOptions": {
+    "baseUrl": "src",
+    "module": "esnext",
+    "target": "ES6",
+    "outDir": "dist",
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "importsNotUsedAsValues": "remove",
+    "strict": true,
+    "moduleResolution": "Node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true
   }
+}

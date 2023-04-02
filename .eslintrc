@@ -1,0 +1,18 @@
+{
+  "plugins": ["@typescript-eslint"],
+  "extends": ["@bestdoctor"],
+  "ignorePatterns": "rollup.config.js",
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "createDefaultProgram": true,
+    "project": ["./tsconfig.json"]
+  },
+  "overrides": [
+    {
+      "files": ["./**/*.ts", "./*.ts", ""],
+      "rules": {
+        "import/no-extraneous-dependencies": "off"
+      }
+    }
+  ]
+}

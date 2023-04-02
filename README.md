@@ -10,30 +10,22 @@ TypeScript клиент для ItsOn.
 
 `$ npm i -S @bestdoctor/its-on-client`
 
-## Пример использование базового клиента
+## Пример использование
 
 Инициализация клиента
 ```typescript
 import { ItsOnClient, Flags } from '@bestdoctor/its-on-client'
 
-const flagsToLowerCase = (input: Flags): Flags =>
-  Object.fromEntries(Object.entries(input).map(([flag, value]) => [flag.toLowerCase(), value]))
-
 const serializedFlags = process.env._ITS_ON_FLAGS_
-const prefetchedFlags = serializedFlags ? flagsToLowerCase(JSON.parse(serializedFlags) as Flags) : undefined
+const prefetchedFlags = serializedFlags ? JSON.parse(serializedFlags) as Flags : undefined
 
 export const itsOnClient = new ItsOnClient({
   url: String(process.env.ITS_ON_URL),
   prefetchedFlags,
-  refetchInterfal: 60 * 1000,
   debugFlags: {
     'some-debug-flag': true
   }
 })
-
-itsOnClient.enableRefetch()
-
-itsOnClient.subscribeToRefetch((flags) => console.log('new flags', flags))
 
 export const isActive = (flag: string) => itsOnClient.isActive(flag)
 ```
@@ -50,16 +42,12 @@ enum ProjectFlags = {
   NEW_ANOTHER_FLAG,
 }
 
-const flagsToLowerCase = (input: Flags): Flags =>
-  Object.fromEntries(Object.entries(input).map(([flag, value]) => [flag.toLowerCase(), value]))
-
 const serializedFlags = process.env._ITS_ON_FLAGS_
-const prefetchedFlags = serializedFlags ? flagsToLowerCase(JSON.parse(serializedFlags) as Flags) : undefined
+const prefetchedFlags = serializedFlags ? JSON.parse(serializedFlags) as Flags : undefined
 
 export const itsOnClient = new ItsOnClient<ProjectFlags>({
   url: String(process.env.ITS_ON_URL),
   prefetchedFlags,
-  refetchInterfal: 60 * 1000,
 })
 
 export const isActive = (flag: ProjectFlags) => itsOnClient.isActive(flag)
@@ -74,30 +62,19 @@ useEffect(() => {
 }, [])
 ```
 
-## Пример использование браузерного клиента
-Интерфейс аналогичен базовому клиенту, данный клиент дополнительно добавляет в ```window``` функции работы с флагами из консоли браузера:
+## Вспомогательные функции
 
 ```javascript
-setFlag: (flag, value: boolean) => void
-```
-Установка значения флага, по умолчанию устанавливается true
-
-```javascript
-disableFlag: (flag: string) => void
-```
-Отключение флага, эквивалентно вызову ```setFlag(flag, false)```
-
-```javascript
-getFlag: (flag: string) => void
+logFlag: (flag: string) => void
 ```
 Вывод в консоль текущего значения флага
 
 ```javascript
-getAllFlags: () => void
+logAllFlags: () => void
 ```
 Вывод в консоль всех флагов
 
 ```javascript
-getDebugFlags: () => void
+logDebugFlags: () => void
 ```
 Вывод в консоль всех отладочных флагов

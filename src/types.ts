@@ -4,14 +4,11 @@ export type Flags<T extends string = string> = {
 
 export interface ItsOnClientConfig<T extends string = string> {
   url: string
-  refetchTimeInterval?: number
   debugFlags?: Flags<T>
   prefetchedFlags?: Flags<T>
 }
 
-export type FlagsSubscriber = (flags: Flags) => void
-
-export interface ServerResponse {
+export interface ServerResponse<T extends string = string> {
   count: number
-  result: string[]
+  result: T[]
 }

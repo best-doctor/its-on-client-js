@@ -1,10 +1,6 @@
-import { Flags, FlagsSubscriber, ItsOnClientConfig, ServerResponse } from './types'
+import { Flags, ItsOnClientConfig, ServerResponse } from './types'
 
-const areFlagsEqual = (flags1: Flags, flags2: Flags): boolean =>
-  Object.keys(flags1).length === Object.keys(flags2).length &&
-  Object.keys(flags1).every((key) => flags1[key] === flags2[key])
-
-const DEFAULT_REFETCH_TIME_INTERVAL = 60 * 1000
+const LOG_PREFIX = '[Its On]'
 
 export class ItsOnClient<T extends string = string> {
   debugFlags: Flags<T>
@@ -13,24 +9,18 @@ export class ItsOnClient<T extends string = string> {
 
   url: ItsOnClientConfig['url']
 
-  refetchTimeInterval: ItsOnClientConfig['refetchTimeInterval']
-
-  areFlagsInited = false
-
-  refetchSubscribers: FlagsSubscriber[] = []
-
-  refetchInterval: number | undefined = undefined
-
-  // Вынос флагов debugFlags и prefetchedFlags в параметры обусловлен
-  // переносом ответственности за сборку с библиотеки на конкретный проект
   constructor(config: ItsOnClientConfig) {
-    const { debugFlags = {}, prefetchedFlags = {}, refetchTimeInterval, url } = config
+    const { debugFlags = {}, prefetchedFlags = {}, url } = config
 
-    this.url = url
-    this.refetchTimeInterval = refetchTimeInterval || DEFAULT_REFETCH_TIME_INTERVAL
+    this.url = url;
 
-    this.debugFlags = debugFlags
-    this.serverFlags = prefetchedFlags
+    this.debugFlags = this.prepareFlags(debugFlags);
+    this.serverFlags = this.prepareFlags(prefetchedFlags);
+  }
+
+  private prepareFlags(rawFlags: Flags<T>): Flags<T> {
+    const entries = Object.entries(rawFlags).map(([key, value]) => [key.toLowerCase(), value]);
+    return Object.fromEntries(entries) as Flags<T>;
   }
 
   getFlagValue(flag: T): boolean {
@@ -56,7 +46,7 @@ export class ItsOnClient<T extends string = string> {
     this.debugFlags[flag.toLowerCase() as T] = value
   }
 
-  setServerFlags(flags: Flags): void {
+  setServerFlags(flags: Flags<T>): void {
     this.serverFlags = flags
   }
 
@@ -64,12 +54,11 @@ export class ItsOnClient<T extends string = string> {
     this.debugFlags = {}
   }
 
-  async fetchFlags(): Promise<Flags> {
+  async fetchFlags(): Promise<Flags<T>> {
     try {
-      const { result: rawFlags } = await fetch(this.url).then<ServerResponse>((response) => response.json())
-      const preparedFlags: Flags = Object.fromEntries(rawFlags.map((flag) => [flag.toLowerCase(), true]))
+      const { result: rawFlags = [] } = await fetch(this.url).then<ServerResponse<T>>((response) => response.json())
+      const preparedFlags = this.prepareFlags(Object.fromEntries(rawFlags.map((flag) => [flag, true])) as Flags<T>)
 
-      this.areFlagsInited = true
       this.setServerFlags(preparedFlags)
 
       return preparedFlags
@@ -78,45 +67,18 @@ export class ItsOnClient<T extends string = string> {
     }
   }
 
-  refetch = async (): Promise<void> => {
-    // Не перезапрашиваем флаги до первой инициализации.
-    if (!this.areFlagsInited) {
-      return
-    }
-
-    const newFlags = await this.fetchFlags()
-
-    const areFlagsChanged = !areFlagsEqual(this.serverFlags, newFlags)
-
-    if (!areFlagsChanged) {
-      return
-    }
-
-    this.setServerFlags(newFlags)
-
-    this.refetchSubscribers.forEach((subscriber) => {
-      subscriber(newFlags)
-    })
+  logFlag = (flag: T): void => {
+    // eslint-disable-next-line no-console
+    console.log(LOG_PREFIX, `${flag}: ${this.getFlagValue(flag) ? 'on' : 'off'}`)
   }
 
-  enableRefetch(): void {
-    if (this.refetchInterval) {
-      return
-    }
-
-    this.refetchInterval = window.setInterval(() => { this.refetch(); }, this.refetchTimeInterval)
+  logAllFlags = (): void => {
+    // eslint-disable-next-line no-console
+    console.log(LOG_PREFIX, `Flags: ${JSON.stringify({ ...this.serverFlags, ...this.debugFlags }, null, '\t')}`)
   }
 
-  disableRefetch(): void {
-    clearInterval(this.refetchInterval)
-    this.refetchInterval = undefined
-  }
-
-  subscribeToRefetch(callback: FlagsSubscriber): void {
-    this.refetchSubscribers.push(callback)
-  }
-
-  unsubscribeFromRefetch(callback: FlagsSubscriber): void {
-    this.refetchSubscribers = this.refetchSubscribers.filter((cb) => cb === callback)
+  logDebugFlags = (): void => {
+    // eslint-disable-next-line no-console
+    console.log(LOG_PREFIX, `Debug flags: ${JSON.stringify(this.serverFlags, null, '\t')}`)
   }
 }
